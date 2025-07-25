@@ -87,8 +87,7 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
     public boolean remove(T object) {
         Node<T> current = head;
         while (current != null) {
-            if (current.getValue() == null ? object == null
-                    : current.getValue().equals(object)) {
+            if (current.getValue() == null ? object == null : current.getValue().equals(object)) {
                 unlink(current);
                 size--;
                 return true;
@@ -109,8 +108,7 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
     }
 
     private void validateIndex(int index, boolean isAddOperation) {
-        if (index < 0 || (!isAddOperation && index >= size)
-                || (isAddOperation && index > size)) {
+        if (index < 0 || (!isAddOperation && index >= size) || (isAddOperation && index > size)) {
             throw new IndexOutOfBoundsException("Invalid index: " + index);
         }
     }
@@ -134,19 +132,16 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
     private void unlink(Node<T> node) {
         Node<T> next = node.getNext();
         Node<T> prev = node.getPrev();
-
         if (prev != null) {
             prev.setNext(next);
         } else {
             head = next;
         }
-
         if (next != null) {
             next.setPrev(prev);
         } else {
             tail = prev;
         }
-
         node.setValue(null);
         node.setPrev(null);
         node.setNext(null);
