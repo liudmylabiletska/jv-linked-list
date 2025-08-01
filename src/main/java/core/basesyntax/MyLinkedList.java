@@ -11,43 +11,40 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
     public void add(T value) {
         Node<T> newNode = new Node<>(value);
         if (tail == null) {
-            head = tail = newNode;
+            head = newNode;
         } else {
             tail.setNext(newNode);
             newNode.setPrev(tail);
-            tail = newNode;
         }
+        tail = newNode;
         size++;
     }
 
     @Override
     public void add(T value, int index) {
         validateIndex(index, true);
-        Node<T> newNode = new Node<>(value);
         if (index == size) {
             add(value);
-        } else if (index == 0) {
+            return;
+        }
+        Node<T> newNode = new Node<>(value);
+        if (index == 0) {
             newNode.setNext(head);
             if (head != null) {
                 head.setPrev(newNode);
             }
             head = newNode;
-            if (tail == null) {
-                tail = newNode;
-            }
-            size++;
         } else {
             Node<T> current = findNodeByIndex(index);
             Node<T> prev = current.getPrev();
             newNode.setNext(current);
             newNode.setPrev(prev);
-            if (prev != null) {
-                prev.setNext(newNode);
-            } else {
-                head = newNode;
-            }
+            prev.setNext(newNode);
             current.setPrev(newNode);
-            size++;
+        }
+        size++;
+        if (tail == null) {
+            tail = head;
         }
     }
 
@@ -108,7 +105,8 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
     }
 
     private void validateIndex(int index, boolean isAddOperation) {
-        if (index < 0 || (!isAddOperation && index >= size) || (isAddOperation && index > size)) {
+        int limit = isAddOperation ? size : size - 1;
+        if (index < 0 || index > limit) {
             throw new IndexOutOfBoundsException("Invalid index: " + index);
         }
     }
@@ -132,16 +130,20 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
     private void unlink(Node<T> node) {
         Node<T> next = node.getNext();
         Node<T> prev = node.getPrev();
+
         if (prev != null) {
             prev.setNext(next);
         } else {
             head = next;
         }
+
         if (next != null) {
             next.setPrev(prev);
         } else {
             tail = prev;
         }
+
+        // Help garbage collector
         node.setValue(null);
         node.setPrev(null);
         node.setNext(null);
