@@ -13,8 +13,8 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
         if (tail == null) {
             head = newNode;
         } else {
-            tail.setNext(newNode);
-            newNode.setPrev(tail);
+            tail.next = newNode;
+            newNode.prev = tail;
         }
         tail = newNode;
         size++;
@@ -29,23 +29,25 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
         }
         Node<T> newNode = new Node<>(value);
         if (index == 0) {
-            newNode.setNext(head);
+            newNode.next = head;
             if (head != null) {
-                head.setPrev(newNode);
+                head.prev = newNode;
             }
             head = newNode;
+            if (tail == null) {
+                tail = newNode;
+            }
         } else {
-            Node<T> current = findNodeByIndex(index);
-            Node<T> prev = current.getPrev();
-            newNode.setNext(current);
-            newNode.setPrev(prev);
-            prev.setNext(newNode);
-            current.setPrev(newNode);
+
+            Node<T> currentNode = findNodeByIndex(index);
+            Node<T> prevNode = currentNode.prev;
+
+            prevNode.next = newNode;
+            newNode.prev = prevNode;
+            newNode.next = currentNode;
+            currentNode.prev = newNode;
         }
         size++;
-        if (tail == null) {
-            tail = head;
-        }
     }
 
     @Override
@@ -58,24 +60,24 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
     @Override
     public T get(int index) {
         validateIndex(index, false);
-        return findNodeByIndex(index).getValue();
+        return findNodeByIndex(index).value;
     }
 
     @Override
     public T set(T value, int index) {
         validateIndex(index, false);
         Node<T> node = findNodeByIndex(index);
-        T oldValue = node.getValue();
-        node.setValue(value);
+        T oldValue = node.value;
+        node.value = value;
         return oldValue;
     }
 
     @Override
     public T remove(int index) {
         validateIndex(index, false);
-        Node<T> target = findNodeByIndex(index);
-        T value = target.getValue();
-        unlink(target);
+        Node<T> nodeToRemove = findNodeByIndex(index);
+        T value = nodeToRemove.value;
+        unlink(nodeToRemove);
         size--;
         return value;
     }
@@ -84,12 +86,13 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
     public boolean remove(T object) {
         Node<T> current = head;
         while (current != null) {
-            if (current.getValue() == null ? object == null : current.getValue().equals(object)) {
+            if ((object == null && current.value == null)
+                    || (object != null && object.equals(current.value))) {
                 unlink(current);
                 size--;
                 return true;
             }
-            current = current.getNext();
+            current = current.next;
         }
         return false;
     }
@@ -105,9 +108,10 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
     }
 
     private void validateIndex(int index, boolean isAddOperation) {
-        int limit = isAddOperation ? size : size - 1;
-        if (index < 0 || index > limit) {
-            throw new IndexOutOfBoundsException("Invalid index: " + index);
+        int upperLimit = isAddOperation ? size : size - 1;
+        if (index < 0 || index > upperLimit) {
+            throw new IndexOutOfBoundsException("Index " + index
+                    + " is out of bounds for size " + size);
         }
     }
 
@@ -116,37 +120,35 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
         if (index < size / 2) {
             current = head;
             for (int i = 0; i < index; i++) {
-                current = current.getNext();
+                current = current.next;
             }
         } else {
             current = tail;
             for (int i = size - 1; i > index; i--) {
-                current = current.getPrev();
+                current = current.prev;
             }
         }
         return current;
     }
 
-    private void unlink(Node<T> node) {
-        Node<T> next = node.getNext();
-        Node<T> prev = node.getPrev();
+    private void unlink(Node<T> nodeToRemove) {
+        Node<T> nextNode = nodeToRemove.next;
+        Node<T> prevNode = nodeToRemove.prev;
 
-        if (prev != null) {
-            prev.setNext(next);
+        if (prevNode == null) {
+            head = nextNode;
         } else {
-            head = next;
+            prevNode.next = nextNode;
+            nodeToRemove.prev = null;
         }
 
-        if (next != null) {
-            next.setPrev(prev);
+        if (nextNode == null) {
+            tail = prevNode;
         } else {
-            tail = prev;
+            nextNode.prev = prevNode;
+            nodeToRemove.next = null;
         }
-
-        // Help garbage collector
-        node.setValue(null);
-        node.setPrev(null);
-        node.setNext(null);
+        nodeToRemove.value = null;
     }
 
     private static class Node<T> {
@@ -154,32 +156,32 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
         private Node<T> prev;
         private Node<T> next;
 
-        public Node(T value) {
+        Node(T value) {
             this.value = value;
         }
 
-        public T getValue() {
+        T getValue() {
             return value;
         }
 
-        public void setValue(T value) {
-            this.value = value;
-        }
-
-        public Node<T> getPrev() {
+        Node<T> getPrev() {
             return prev;
         }
 
-        public void setPrev(Node<T> prev) {
-            this.prev = prev;
-        }
-
-        public Node<T> getNext() {
+        Node<T> getNext() {
             return next;
         }
 
-        public void setNext(Node<T> next) {
+        void setPrev(Node<T> prev) {
+            this.prev = prev;
+        }
+
+        void setNext(Node<T> next) {
             this.next = next;
+        }
+
+        void setValue(T value) {
+            this.value = value;
         }
     }
 }
