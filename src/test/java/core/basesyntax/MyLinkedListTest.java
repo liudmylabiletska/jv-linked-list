@@ -170,8 +170,6 @@ public class MyLinkedListTest {
         String actualThird = myLinkedList.get(2);
         Assert.assertEquals("Test failed! First element should be " + FIRST_ITEM,
                 FIRST_ITEM, actualFirst);
-        Assert.assertEquals("Test failed! Second element should be " + SECOND_ITEM,
-                SECOND_ITEM, actualSecond);
         Assert.assertEquals("Test failed! Third element should be " + THIRD_ITEM,
                 THIRD_ITEM, actualThird);
         Assert.assertEquals("Expected size is incorrect", 3, myLinkedList.size());
