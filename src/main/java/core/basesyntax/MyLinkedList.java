@@ -94,7 +94,6 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
     }
 
     private Node<T> getNode(int index) {
-        // Замість дублювання, перевірка індексу відбувається в публічних методах
         Node<T> current;
         if (index < size / 2) {
             current = head;
